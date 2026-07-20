@@ -93,6 +93,15 @@ tr:last-child td{border-bottom:none}
 .set-card button.danger{color:var(--seal)}
 .hint{font-size:14px;color:var(--sub);margin-top:8px;padding:0 4px}
 
+.fs-btns{display:flex;gap:8px}
+.fs-btns button{flex:1;padding:12px 0;border:1px solid var(--line);border-radius:10px;
+  background:var(--card);color:var(--ink);font-size:16px}
+.fs-btns button.on{background:var(--green);color:#fff;border-color:var(--green);font-weight:600}
+.region-row{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 2px;border-bottom:1px solid var(--line);font-size:17px}
+.region-row:last-child{border-bottom:none}
+.region-del{background:none;border:none;color:var(--seal);font-size:15px;padding:4px 8px}
+
 /* tabbar */
 nav{position:fixed;bottom:0;left:0;right:0;background:rgba(250,249,244,.95);
   backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;
@@ -156,6 +165,25 @@ input,select,textarea{width:100%;padding:13px 14px;font-size:18px;border:1px sol
   </section>
 
   <section id="tab-more">
+    <h2>顯示</h2>
+    <div class="set-card" style="padding:13px 16px">
+      <div style="font-size:17px;margin-bottom:10px">字體大小</div>
+      <div class="fs-btns">
+        <button data-fs="1" onclick="setFont(1)">標準</button>
+        <button data-fs="1.15" onclick="setFont(1.15)">大</button>
+        <button data-fs="1.3" onclick="setFont(1.3)">特大</button>
+      </div>
+    </div>
+
+    <h2>地區選項</h2>
+    <div class="set-card" style="padding:13px 16px">
+      <div id="regionList"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input id="regionInput" placeholder="新增地區，例：北屯區">
+        <button class="btn-sm" style="flex-shrink:0;background:var(--green);color:#fff;border:none" onclick="addRegion()">新增</button>
+      </div>
+    </div>
+
     <h2>資料</h2>
     <div class="set-card">
       <button onclick="exportCSV()">匯出繳費紀錄 CSV</button>
@@ -181,6 +209,7 @@ input,select,textarea{width:100%;padding:13px 14px;font-size:18px;border:1px sol
     <h3 id="tfTitle">新增房客</h3>
     <label>姓名 / 稱呼</label><input id="tfName" placeholder="例：王先生">
     <label>房號</label><input id="tfRoom" placeholder="例：3F-A">
+    <label>地區</label><select id="tfRegion"></select>
     <label>月租金</label><input id="tfRent" type="number" inputmode="numeric" placeholder="例：12000">
     <label>起租月份</label><input id="tfStart" type="month">
     <label>每月繳費日</label><input id="tfDueDay" type="number" inputmode="numeric" min="1" max="31" placeholder="例：5">
@@ -209,13 +238,14 @@ input,select,textarea{width:100%;padding:13px 14px;font-size:18px;border:1px sol
 </div>
 
 <script>
-const K_T='rent_tenants_v1', K_P='rent_payments_v1';
+const K_T='rent_tenants_v1', K_P='rent_payments_v1', K_S='rent_settings_v1';
 let tenants=load(K_T,[]), payments=load(K_P,{});
+let settings=load(K_S,{fontScale:1,regions:[]});
 let cur=new Date(); cur.setDate(1);
 let editingTenant=null, payingKey=null;
 
 function load(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
-function save(){localStorage.setItem(K_T,JSON.stringify(tenants));localStorage.setItem(K_P,JSON.stringify(payments))}
+function save(){localStorage.setItem(K_T,JSON.stringify(tenants));localStorage.setItem(K_P,JSON.stringify(payments));localStorage.setItem(K_S,JSON.stringify(settings))}
 const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 const fmt$=n=>'$'+Number(n||0).toLocaleString('zh-Hant-TW');
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
@@ -249,7 +279,7 @@ function render(){
       return `<div class="tcard">
         <div class="info">
           <div class="name">${esc(t.name)} <span style="font-weight:400;color:var(--sub);font-size:13px">${esc(t.room||'')}</span></div>
-          <div class="meta">月租 ${fmt$(t.rent)}　${dueTxt}</div>
+          <div class="meta">${t.region?esc(t.region)+'・':''}月租 ${fmt$(t.rent)}　${dueTxt}</div>
           ${p?`<div class="paid-meta">${p.date} 收 ${fmt$(p.amount)}${p.note?'・'+esc(p.note):''}</div>`:''}
         </div>
         ${p?`<div class="seal" onclick="openPayForm('${t.id}',true)">收</div>`
@@ -291,7 +321,7 @@ function renderTenants(){
   el.innerHTML=tenants.map(t=>`
     <div class="trow">
       <div><b>${esc(t.name)}</b> <span class="r">${esc(t.room||'')}</span>
-        <div class="r">月租 ${fmt$(t.rent)}${t.startYm?'・'+t.startYm+' 起租':''}${t.note?'・'+esc(t.note):''}</div>
+        <div class="r">${t.region?esc(t.region)+'・':''}月租 ${fmt$(t.rent)}${t.startYm?'・'+t.startYm+' 起租':''}${t.note?'・'+esc(t.note):''}</div>
       </div>
       <button class="btn-sm" onclick="openTenantForm('${t.id}')">編輯</button>
     </div>`).join('')||'<div class="empty">尚無房客</div>';
@@ -303,6 +333,8 @@ function openTenantForm(id){
   document.getElementById('tfTitle').textContent=editingTenant?'編輯房客':'新增房客';
   document.getElementById('tfName').value=editingTenant?.name||'';
   document.getElementById('tfRoom').value=editingTenant?.room||'';
+  renderRegions();
+  document.getElementById('tfRegion').value=editingTenant?.region||'';
   document.getElementById('tfRent').value=editingTenant?.rent||'';
   document.getElementById('tfStart').value=editingTenant?.startYm||ym(new Date());
   document.getElementById('tfDueDay').value=editingTenant?.dueDay||'';
@@ -314,6 +346,7 @@ function saveTenant(){
   const name=document.getElementById('tfName').value.trim();
   if(!name){alert('請輸入姓名');return}
   const data={name,room:document.getElementById('tfRoom').value.trim(),
+    region:document.getElementById('tfRegion').value,
     rent:+document.getElementById('tfRent').value||0,
     startYm:document.getElementById('tfStart').value,
     dueDay:+document.getElementById('tfDueDay').value||null,
@@ -357,16 +390,16 @@ document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if
 
 /* export / backup */
 function exportCSV(){
-  let rows=[['房客','房號','年月','收款日期','金額','備註']];
+  let rows=[['房客','房號','地區','年月','收款日期','金額','備註']];
   Object.entries(payments).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([k,p])=>{
     const [tid,y]=k.split(':'); const t=tenants.find(x=>x.id===tid);
-    rows.push([t?t.name:'(已刪除)',t?.room||'',y,p.date,p.amount,p.note||'']);
+    rows.push([t?t.name:'(已刪除)',t?.room||'',t?.region||'',y,p.date,p.amount,p.note||'']);
   });
   const csv='\uFEFF'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
   dl(new Blob([csv],{type:'text/csv'}),'rent_records.csv');
 }
 function backupJSON(){
-  dl(new Blob([JSON.stringify({tenants,payments},null,2)],{type:'application/json'}),
+  dl(new Blob([JSON.stringify({tenants,payments,settings},null,2)],{type:'application/json'}),
     'rent_backup_'+new Date().toISOString().slice(0,10)+'.json');
 }
 function restoreJSON(inp){
@@ -376,7 +409,9 @@ function restoreJSON(inp){
     const d=JSON.parse(r.result);
     if(!Array.isArray(d.tenants))throw 0;
     if(!confirm('還原將覆蓋目前資料，確定？'))return;
-    tenants=d.tenants;payments=d.payments||{};save();render();alert('還原完成');
+    tenants=d.tenants;payments=d.payments||{};
+    if(d.settings)settings=d.settings;
+    save();applyFont();renderRegions();render();alert('還原完成');
   }catch(e){alert('檔案格式不正確')}};
   r.readAsText(f); inp.value='';
 }
@@ -385,9 +420,47 @@ function wipeAll(){
   tenants=[];payments={};save();render();
 }
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+/* font size */
+function setFont(sc){
+  settings.fontScale=sc; save(); applyFont();
+}
+function applyFont(){
+  document.body.style.zoom=settings.fontScale;
+  document.querySelectorAll('.fs-btns button').forEach(b=>{
+    b.classList.toggle('on', Math.abs(+b.dataset.fs-settings.fontScale)<0.01);
+  });
+}
+
+/* regions */
+function renderRegions(){
+  const el=document.getElementById('regionList');
+  el.innerHTML=settings.regions.map((r,i)=>
+    `<div class="region-row"><span>${esc(r)}</span>
+     <button class="region-del" onclick="delRegion(${i})">刪除</button></div>`
+  ).join('')||'<div style="color:var(--sub);font-size:15px">尚未新增地區</div>';
+  // tenant form dropdown
+  const sel=document.getElementById('tfRegion');
+  sel.innerHTML='<option value="">未指定</option>'+
+    settings.regions.map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join('');
+}
+function addRegion(){
+  const v=document.getElementById('regionInput').value.trim();
+  if(!v)return;
+  if(settings.regions.includes(v)){alert('此地區已存在');return}
+  settings.regions.push(v); save();
+  document.getElementById('regionInput').value='';
+  renderRegions();
+}
+function delRegion(i){
+  const r=settings.regions[i];
+  const used=tenants.some(t=>t.region===r);
+  if(!confirm('刪除地區「'+r+'」？'+(used?'（已有房客使用此地區，其資料仍會保留原值）':'')))return;
+  settings.regions.splice(i,1); save(); renderRegions();
+}
+
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
-render();
+applyFont();renderRegions();render();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 </script>
 </body>
