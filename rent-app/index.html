@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>收租簿</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0E6B4F">
+<style>
+:root{
+  --paper:#FAF9F4; --card:#FFFFFF; --ink:#1C201E; --sub:#6E7672;
+  --green:#0E6B4F; --green-soft:#E4F0EB; --seal:#C13B2E; --seal-soft:#F9E9E6;
+  --line:#E6E4DC; --amber:#B07B1E;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;
+  font-size:16px;line-height:1.5}
+body{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+
+header{position:sticky;top:0;z-index:10;background:var(--green);color:#fff;
+  padding:calc(10px + env(safe-area-inset-top)) 16px 10px;}
+.h-top{display:flex;align-items:baseline;justify-content:space-between}
+.h-top h1{font-size:19px;font-weight:700;letter-spacing:2px}
+.h-top small{opacity:.75;font-size:12px}
+.month-nav{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
+.month-nav button{background:rgba(255,255,255,.15);border:none;color:#fff;
+  width:34px;height:34px;border-radius:10px;font-size:18px}
+.month-nav .m-label{font-size:18px;font-weight:700;min-width:130px;text-align:center;letter-spacing:1px}
+
+.summary{display:flex;gap:8px;margin-top:10px}
+.summary .s{flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:6px 8px;text-align:center}
+.summary .s b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+.summary .s span{font-size:11px;opacity:.8}
+
+main{padding:14px 14px 0;max-width:640px;margin:0 auto}
+section{display:none}
+section.on{display:block}
+h2{font-size:13px;color:var(--sub);font-weight:600;letter-spacing:2px;margin:14px 0 8px}
+
+/* tenant card (month view) */
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.tcard .info{flex:1;min-width:0}
+.tcard .name{font-weight:700;font-size:16px}
+.tcard .meta{font-size:12.5px;color:var(--sub)}
+.tcard .paid-meta{font-size:12.5px;color:var(--green);margin-top:2px}
+.btn-collect{background:var(--green);color:#fff;border:none;border-radius:10px;
+  padding:10px 16px;font-size:15px;font-weight:600}
+.btn-collect:active{opacity:.8}
+
+/* the seal stamp */
+.seal{width:52px;height:52px;border:2.5px solid var(--seal);border-radius:50%;
+  color:var(--seal);display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:800;transform:rotate(-8deg);flex-shrink:0;
+  background:var(--seal-soft);letter-spacing:0}
+.seal.animate{animation:stamp .28s cubic-bezier(.2,1.6,.4,1)}
+@keyframes stamp{0%{transform:rotate(-8deg) scale(2.2);opacity:0}
+  100%{transform:rotate(-8deg) scale(1);opacity:1}}
+.seal-sm{width:26px;height:26px;border-width:1.5px;font-size:12px;margin:0 auto}
+
+.empty{color:var(--sub);text-align:center;padding:36px 12px;font-size:14px}
+.empty button{margin-top:10px}
+
+/* year grid */
+.ygrid-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:8px}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:6px 4px;text-align:center;font-size:12.5px;border-bottom:1px solid var(--line)}
+th{color:var(--sub);font-weight:600}
+td.tn{text-align:left;font-weight:600;white-space:nowrap;padding-right:8px}
+td .dot{color:#C9C6BB}
+tr:last-child td{border-bottom:none}
+
+/* tenants list */
+.trow{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.trow .r{font-size:13px;color:var(--sub)}
+.btn-sm{background:none;border:1px solid var(--line);border-radius:8px;
+  padding:6px 12px;font-size:13.5px;color:var(--ink)}
+.btn-add{width:100%;background:var(--green);color:#fff;border:none;border-radius:var(--radius);
+  padding:13px;font-size:16px;font-weight:600;margin-top:4px}
+
+/* settings */
+.set-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:6px 0}
+.set-card button{display:block;width:100%;background:none;border:none;text-align:left;
+  padding:13px 16px;font-size:15.5px;color:var(--ink);border-bottom:1px solid var(--line)}
+.set-card button:last-child{border-bottom:none}
+.set-card button.danger{color:var(--seal)}
+.hint{font-size:12.5px;color:var(--sub);margin-top:8px;padding:0 4px}
+
+/* tabbar */
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(250,249,244,.95);
+  backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;
+  padding-bottom:env(safe-area-inset-bottom);z-index:10}
+nav button{flex:1;background:none;border:none;padding:9px 0 7px;font-size:11px;
+  color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button .ic{font-size:20px;line-height:1}
+nav button.on{color:var(--green);font-weight:600}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(20,24,22,.45);display:none;
+  align-items:flex-end;justify-content:center;z-index:20}
+.modal.on{display:flex}
+.sheet{background:var(--paper);border-radius:18px 18px 0 0;width:100%;max-width:640px;
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto}
+.sheet h3{font-size:17px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--sub);margin:12px 0 4px}
+input,select,textarea{width:100%;padding:11px 12px;font-size:16px;border:1px solid var(--line);
+  border-radius:10px;background:var(--card);color:var(--ink);font-family:inherit}
+.row2{display:flex;gap:10px}.row2>div{flex:1}
+.sheet-btns{display:flex;gap:10px;margin-top:18px}
+.sheet-btns button{flex:1;padding:13px;border-radius:12px;font-size:16px;font-weight:600;border:none}
+.b-primary{background:var(--green);color:#fff}
+.b-ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+.b-danger-link{background:none;border:none;color:var(--seal);width:100%;margin-top:10px;
+  padding:10px;font-size:14.5px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-top"><h1>收租簿</h1><small id="todayLabel"></small></div>
+  <div class="month-nav">
+    <button onclick="shiftMonth(-1)">‹</button>
+    <div class="m-label" id="mLabel"></div>
+    <button onclick="shiftMonth(1)">›</button>
+  </div>
+  <div class="summary">
+    <div class="s"><b id="sumDue">–</b><span>應收</span></div>
+    <div class="s"><b id="sumPaid">–</b><span>已收</span></div>
+    <div class="s"><b id="sumOpen">–</b><span>未收</span></div>
+  </div>
+</header>
+
+<main>
+  <section id="tab-month" class="on">
+    <h2>本月收租狀況</h2>
+    <div id="monthList"></div>
+  </section>
+
+  <section id="tab-year">
+    <h2 id="yearTitle">年度總覽</h2>
+    <div class="ygrid-wrap"><table id="yearTable"></table></div>
+    <p class="hint">「收」＝該月已繳，金額列於印章下方；空白＝未繳或尚未起租。</p>
+  </section>
+
+  <section id="tab-tenants">
+    <h2>房客名單</h2>
+    <div id="tenantList"></div>
+    <button class="btn-add" onclick="openTenantForm()">＋ 新增房客</button>
+  </section>
+
+  <section id="tab-more">
+    <h2>資料</h2>
+    <div class="set-card">
+      <button onclick="exportCSV()">匯出繳費紀錄 CSV</button>
+      <button onclick="backupJSON()">備份全部資料（JSON）</button>
+      <button onclick="document.getElementById('restoreFile').click()">還原備份</button>
+      <button class="danger" onclick="wipeAll()">清除所有資料</button>
+    </div>
+    <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreJSON(this)">
+    <p class="hint">資料只儲存在這支手機的瀏覽器裡（localStorage），不會上傳。建議定期備份 JSON。</p>
+  </section>
+</main>
+
+<nav>
+  <button id="nav-month" class="on" onclick="switchTab('month')"><span class="ic">📅</span>本月</button>
+  <button id="nav-year" onclick="switchTab('year')"><span class="ic">🗓</span>年度</button>
+  <button id="nav-tenants" onclick="switchTab('tenants')"><span class="ic">👥</span>房客</button>
+  <button id="nav-more" onclick="switchTab('more')"><span class="ic">⚙️</span>更多</button>
+</nav>
+
+<!-- tenant form -->
+<div class="modal" id="tenantModal">
+  <div class="sheet">
+    <h3 id="tfTitle">新增房客</h3>
+    <label>姓名 / 稱呼</label><input id="tfName" placeholder="例：王先生">
+    <div class="row2">
+      <div><label>房號</label><input id="tfRoom" placeholder="例：3F-A"></div>
+      <div><label>月租金</label><input id="tfRent" type="number" inputmode="numeric" placeholder="例：12000"></div>
+    </div>
+    <div class="row2">
+      <div><label>起租月份</label><input id="tfStart" type="month"></div>
+      <div><label>每月繳費日</label><input id="tfDueDay" type="number" inputmode="numeric" min="1" max="31" placeholder="例：5"></div>
+    </div>
+    <label>備註（押金、水電約定…）</label><textarea id="tfNote" rows="2"></textarea>
+    <div class="sheet-btns">
+      <button class="b-ghost" onclick="closeModal('tenantModal')">取消</button>
+      <button class="b-primary" onclick="saveTenant()">儲存</button>
+    </div>
+    <button class="b-danger-link" id="tfDelete" style="display:none" onclick="deleteTenant()">刪除此房客</button>
+  </div>
+</div>
+
+<!-- payment form -->
+<div class="modal" id="payModal">
+  <div class="sheet">
+    <h3 id="pfTitle">登記收租</h3>
+    <div class="row2">
+      <div><label>收款日期</label><input id="pfDate" type="date"></div>
+      <div><label>金額</label><input id="pfAmount" type="number" inputmode="numeric"></div>
+    </div>
+    <label>備註（現金 / 轉帳 / 補繳…）</label><input id="pfNote">
+    <div class="sheet-btns">
+      <button class="b-ghost" onclick="closeModal('payModal')">取消</button>
+      <button class="b-primary" onclick="savePayment()">蓋章收訖</button>
+    </div>
+    <button class="b-danger-link" id="pfDelete" style="display:none" onclick="deletePayment()">取消此筆繳費紀錄</button>
+  </div>
+</div>
+
+<script>
+const K_T='rent_tenants_v1', K_P='rent_payments_v1';
+let tenants=load(K_T,[]), payments=load(K_P,{});
+let cur=new Date(); cur.setDate(1);
+let editingTenant=null, payingKey=null;
+
+function load(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
+function save(){localStorage.setItem(K_T,JSON.stringify(tenants));localStorage.setItem(K_P,JSON.stringify(payments))}
+const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+const fmt$=n=>'$'+Number(n||0).toLocaleString('zh-Hant-TW');
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function activeIn(t,y){ if(!t.startYm) return true; return t.startYm<=y; }
+
+function shiftMonth(d){cur.setMonth(cur.getMonth()+d);render()}
+function switchTab(t){
+  document.querySelectorAll('main section').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+t).classList.add('on');
+  document.getElementById('nav-'+t).classList.add('on');
+}
+
+function render(){
+  const y=ym(cur);
+  document.getElementById('mLabel').textContent=cur.getFullYear()+' 年 '+(cur.getMonth()+1)+' 月';
+  const today=new Date();
+  document.getElementById('todayLabel').textContent=today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate();
+
+  // month list + summary
+  const list=document.getElementById('monthList');
+  const act=tenants.filter(t=>activeIn(t,y));
+  let due=0,paid=0;
+  if(act.length===0){
+    list.innerHTML='<div class="empty">還沒有房客資料<br><button class="btn-add" style="width:auto;padding:10px 24px" onclick="switchTab(\'tenants\');openTenantForm()">＋ 新增第一位房客</button></div>';
+  }else{
+    list.innerHTML=act.map(t=>{
+      const p=payments[t.id+':'+y]; due+=+t.rent||0;
+      if(p) paid+=+p.amount||0;
+      const dueTxt=t.dueDay?('每月 '+t.dueDay+' 日繳'):'';
+      return `<div class="tcard">
+        <div class="info">
+          <div class="name">${esc(t.name)} <span style="font-weight:400;color:var(--sub);font-size:13px">${esc(t.room||'')}</span></div>
+          <div class="meta">月租 ${fmt$(t.rent)}　${dueTxt}</div>
+          ${p?`<div class="paid-meta">${p.date} 收 ${fmt$(p.amount)}${p.note?'・'+esc(p.note):''}</div>`:''}
+        </div>
+        ${p?`<div class="seal" onclick="openPayForm('${t.id}',true)">收</div>`
+           :`<button class="btn-collect" onclick="openPayForm('${t.id}',false)">收租</button>`}
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('sumDue').textContent=fmt$(due);
+  document.getElementById('sumPaid').textContent=fmt$(paid);
+  document.getElementById('sumOpen').textContent=fmt$(Math.max(due-paid,0));
+
+  renderYear(); renderTenants();
+}
+
+function renderYear(){
+  const yr=cur.getFullYear();
+  document.getElementById('yearTitle').textContent=yr+' 年度總覽';
+  const tb=document.getElementById('yearTable');
+  let html='<tr><th style="text-align:left">房客</th>';
+  for(let m=1;m<=12;m++) html+='<th>'+m+'</th>';
+  html+='</tr>';
+  tenants.forEach(t=>{
+    html+='<tr><td class="tn">'+esc(t.name)+'</td>';
+    for(let m=1;m<=12;m++){
+      const y=yr+'-'+String(m).padStart(2,'0');
+      const p=payments[t.id+':'+y];
+      if(p) html+='<td><div class="seal seal-sm">收</div><div style="font-size:10px;color:var(--sub)">'+Number(p.amount).toLocaleString()+'</div></td>';
+      else if(!activeIn(t,y)) html+='<td><span class="dot">·</span></td>';
+      else html+='<td></td>';
+    }
+    html+='</tr>';
+  });
+  if(!tenants.length) html+='<tr><td colspan="13" style="color:var(--sub)">尚無資料</td></tr>';
+  tb.innerHTML=html;
+}
+
+function renderTenants(){
+  const el=document.getElementById('tenantList');
+  el.innerHTML=tenants.map(t=>`
+    <div class="trow">
+      <div><b>${esc(t.name)}</b> <span class="r">${esc(t.room||'')}</span>
+        <div class="r">月租 ${fmt$(t.rent)}${t.startYm?'・'+t.startYm+' 起租':''}${t.note?'・'+esc(t.note):''}</div>
+      </div>
+      <button class="btn-sm" onclick="openTenantForm('${t.id}')">編輯</button>
+    </div>`).join('')||'<div class="empty">尚無房客</div>';
+}
+
+/* tenant form */
+function openTenantForm(id){
+  editingTenant=id?tenants.find(t=>t.id===id):null;
+  document.getElementById('tfTitle').textContent=editingTenant?'編輯房客':'新增房客';
+  document.getElementById('tfName').value=editingTenant?.name||'';
+  document.getElementById('tfRoom').value=editingTenant?.room||'';
+  document.getElementById('tfRent').value=editingTenant?.rent||'';
+  document.getElementById('tfStart').value=editingTenant?.startYm||ym(new Date());
+  document.getElementById('tfDueDay').value=editingTenant?.dueDay||'';
+  document.getElementById('tfNote').value=editingTenant?.note||'';
+  document.getElementById('tfDelete').style.display=editingTenant?'block':'none';
+  document.getElementById('tenantModal').classList.add('on');
+}
+function saveTenant(){
+  const name=document.getElementById('tfName').value.trim();
+  if(!name){alert('請輸入姓名');return}
+  const data={name,room:document.getElementById('tfRoom').value.trim(),
+    rent:+document.getElementById('tfRent').value||0,
+    startYm:document.getElementById('tfStart').value,
+    dueDay:+document.getElementById('tfDueDay').value||null,
+    note:document.getElementById('tfNote').value.trim()};
+  if(editingTenant) Object.assign(editingTenant,data);
+  else tenants.push({id:uid(),...data});
+  save();closeModal('tenantModal');render();
+}
+function deleteTenant(){
+  if(!editingTenant)return;
+  if(!confirm('刪除「'+editingTenant.name+'」？其繳費紀錄也會一併刪除。'))return;
+  tenants=tenants.filter(t=>t.id!==editingTenant.id);
+  Object.keys(payments).forEach(k=>{if(k.startsWith(editingTenant.id+':'))delete payments[k]});
+  save();closeModal('tenantModal');render();
+}
+
+/* payment */
+function openPayForm(tid,exists){
+  const y=ym(cur); payingKey=tid+':'+y;
+  const t=tenants.find(x=>x.id===tid), p=payments[payingKey];
+  document.getElementById('pfTitle').textContent=t.name+'・'+cur.getFullYear()+'年'+(cur.getMonth()+1)+'月';
+  document.getElementById('pfDate').value=p?.date||new Date().toISOString().slice(0,10);
+  document.getElementById('pfAmount').value=p?.amount??t.rent;
+  document.getElementById('pfNote').value=p?.note||'';
+  document.getElementById('pfDelete').style.display=exists?'block':'none';
+  document.getElementById('payModal').classList.add('on');
+}
+function savePayment(){
+  payments[payingKey]={date:document.getElementById('pfDate').value,
+    amount:+document.getElementById('pfAmount').value||0,
+    note:document.getElementById('pfNote').value.trim()};
+  save();closeModal('payModal');render();
+  requestAnimationFrame(()=>{document.querySelectorAll('#monthList .seal').forEach(s=>s.classList.add('animate'))});
+}
+function deletePayment(){
+  if(!confirm('取消這筆繳費紀錄？'))return;
+  delete payments[payingKey];save();closeModal('payModal');render();
+}
+function closeModal(id){document.getElementById(id).classList.remove('on')}
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on')}));
+
+/* export / backup */
+function exportCSV(){
+  let rows=[['房客','房號','年月','收款日期','金額','備註']];
+  Object.entries(payments).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([k,p])=>{
+    const [tid,y]=k.split(':'); const t=tenants.find(x=>x.id===tid);
+    rows.push([t?t.name:'(已刪除)',t?.room||'',y,p.date,p.amount,p.note||'']);
+  });
+  const csv='\uFEFF'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  dl(new Blob([csv],{type:'text/csv'}),'rent_records.csv');
+}
+function backupJSON(){
+  dl(new Blob([JSON.stringify({tenants,payments},null,2)],{type:'application/json'}),
+    'rent_backup_'+new Date().toISOString().slice(0,10)+'.json');
+}
+function restoreJSON(inp){
+  const f=inp.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const d=JSON.parse(r.result);
+    if(!Array.isArray(d.tenants))throw 0;
+    if(!confirm('還原將覆蓋目前資料，確定？'))return;
+    tenants=d.tenants;payments=d.payments||{};save();render();alert('還原完成');
+  }catch(e){alert('檔案格式不正確')}};
+  r.readAsText(f); inp.value='';
+}
+function wipeAll(){
+  if(!confirm('確定清除所有房客與繳費資料？此動作無法復原。'))return;
+  tenants=[];payments={};save();render();
+}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+render();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+</script>
+</body>
+</html>
