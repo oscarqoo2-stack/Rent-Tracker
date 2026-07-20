@@ -19,58 +19,58 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--paper);color:var(--ink);
   font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;
-  font-size:16px;line-height:1.5}
+  font-size:18px;line-height:1.6}
 body{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
 
 header{position:sticky;top:0;z-index:10;background:var(--green);color:#fff;
   padding:calc(10px + env(safe-area-inset-top)) 16px 10px;}
 .h-top{display:flex;align-items:baseline;justify-content:space-between}
-.h-top h1{font-size:19px;font-weight:700;letter-spacing:2px}
-.h-top small{opacity:.75;font-size:12px}
+.h-top h1{font-size:22px;font-weight:700;letter-spacing:2px}
+.h-top small{opacity:.8;font-size:14px}
 .month-nav{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
 .month-nav button{background:rgba(255,255,255,.15);border:none;color:#fff;
-  width:34px;height:34px;border-radius:10px;font-size:18px}
-.month-nav .m-label{font-size:18px;font-weight:700;min-width:130px;text-align:center;letter-spacing:1px}
+  width:44px;height:44px;border-radius:10px;font-size:22px}
+.month-nav .m-label{font-size:21px;font-weight:700;min-width:130px;text-align:center;letter-spacing:1px}
 
 .summary{display:flex;gap:8px;margin-top:10px}
 .summary .s{flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:6px 8px;text-align:center}
-.summary .s b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
-.summary .s span{font-size:11px;opacity:.8}
+.summary .s b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.summary .s span{font-size:13px;opacity:.8}
 
 main{padding:14px 14px 0;max-width:640px;margin:0 auto}
 section{display:none}
 section.on{display:block}
-h2{font-size:13px;color:var(--sub);font-weight:600;letter-spacing:2px;margin:14px 0 8px}
+h2{font-size:15px;color:var(--sub);font-weight:600;letter-spacing:2px;margin:14px 0 8px}
 
 /* tenant card (month view) */
 .tcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
   padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
 .tcard .info{flex:1;min-width:0}
-.tcard .name{font-weight:700;font-size:16px}
-.tcard .meta{font-size:12.5px;color:var(--sub)}
-.tcard .paid-meta{font-size:12.5px;color:var(--green);margin-top:2px}
+.tcard .name{font-weight:700;font-size:19px}
+.tcard .meta{font-size:15px;color:var(--sub)}
+.tcard .paid-meta{font-size:15px;color:var(--green);margin-top:2px}
 .btn-collect{background:var(--green);color:#fff;border:none;border-radius:10px;
-  padding:10px 16px;font-size:15px;font-weight:600}
+  padding:12px 18px;font-size:17px;font-weight:600}
 .btn-collect:active{opacity:.8}
 
 /* the seal stamp */
-.seal{width:52px;height:52px;border:2.5px solid var(--seal);border-radius:50%;
+.seal{width:60px;height:60px;border:2.5px solid var(--seal);border-radius:50%;
   color:var(--seal);display:flex;align-items:center;justify-content:center;
-  font-size:22px;font-weight:800;transform:rotate(-8deg);flex-shrink:0;
+  font-size:26px;font-weight:800;transform:rotate(-8deg);flex-shrink:0;
   background:var(--seal-soft);letter-spacing:0}
 .seal.animate{animation:stamp .28s cubic-bezier(.2,1.6,.4,1)}
 @keyframes stamp{0%{transform:rotate(-8deg) scale(2.2);opacity:0}
   100%{transform:rotate(-8deg) scale(1);opacity:1}}
-.seal-sm{width:26px;height:26px;border-width:1.5px;font-size:12px;margin:0 auto}
+.seal-sm{width:30px;height:30px;border-width:1.5px;font-size:14px;margin:0 auto}
 
-.empty{color:var(--sub);text-align:center;padding:36px 12px;font-size:14px}
+.empty{color:var(--sub);text-align:center;padding:36px 12px;font-size:16px}
 .empty button{margin-top:10px}
 
 /* year grid */
 .ygrid-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);
   border-radius:var(--radius);padding:8px}
 table{border-collapse:collapse;width:100%;min-width:560px}
-th,td{padding:6px 4px;text-align:center;font-size:12.5px;border-bottom:1px solid var(--line)}
+th,td{padding:8px 5px;text-align:center;font-size:14px;border-bottom:1px solid var(--line)}
 th{color:var(--sub);font-weight:600}
 td.tn{text-align:left;font-weight:600;white-space:nowrap;padding-right:8px}
 td .dot{color:#C9C6BB}
@@ -79,27 +79,27 @@ tr:last-child td{border-bottom:none}
 /* tenants list */
 .trow{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
   padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.trow .r{font-size:13px;color:var(--sub)}
+.trow .r{font-size:15px;color:var(--sub)}
 .btn-sm{background:none;border:1px solid var(--line);border-radius:8px;
-  padding:6px 12px;font-size:13.5px;color:var(--ink)}
+  padding:8px 14px;font-size:15.5px;color:var(--ink)}
 .btn-add{width:100%;background:var(--green);color:#fff;border:none;border-radius:var(--radius);
-  padding:13px;font-size:16px;font-weight:600;margin-top:4px}
+  padding:15px;font-size:18px;font-weight:600;margin-top:4px}
 
 /* settings */
 .set-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:6px 0}
 .set-card button{display:block;width:100%;background:none;border:none;text-align:left;
-  padding:13px 16px;font-size:15.5px;color:var(--ink);border-bottom:1px solid var(--line)}
+  padding:15px 16px;font-size:17px;color:var(--ink);border-bottom:1px solid var(--line)}
 .set-card button:last-child{border-bottom:none}
 .set-card button.danger{color:var(--seal)}
-.hint{font-size:12.5px;color:var(--sub);margin-top:8px;padding:0 4px}
+.hint{font-size:14px;color:var(--sub);margin-top:8px;padding:0 4px}
 
 /* tabbar */
 nav{position:fixed;bottom:0;left:0;right:0;background:rgba(250,249,244,.95);
   backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;
   padding-bottom:env(safe-area-inset-bottom);z-index:10}
-nav button{flex:1;background:none;border:none;padding:9px 0 7px;font-size:11px;
+nav button{flex:1;background:none;border:none;padding:10px 0 8px;font-size:13px;
   color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px}
-nav button .ic{font-size:20px;line-height:1}
+nav button .ic{font-size:23px;line-height:1}
 nav button.on{color:var(--green);font-weight:600}
 
 /* modal */
@@ -108,17 +108,17 @@ nav button.on{color:var(--green);font-weight:600}
 .modal.on{display:flex}
 .sheet{background:var(--paper);border-radius:18px 18px 0 0;width:100%;max-width:640px;
   padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto}
-.sheet h3{font-size:17px;margin-bottom:14px}
-label{display:block;font-size:13px;color:var(--sub);margin:12px 0 4px}
-input,select,textarea{width:100%;padding:11px 12px;font-size:16px;border:1px solid var(--line);
+.sheet h3{font-size:20px;margin-bottom:14px}
+label{display:block;font-size:15px;color:var(--sub);margin:12px 0 4px}
+input,select,textarea{width:100%;padding:13px 14px;font-size:18px;border:1px solid var(--line);
   border-radius:10px;background:var(--card);color:var(--ink);font-family:inherit}
 .row2{display:flex;gap:10px}.row2>div{flex:1}
 .sheet-btns{display:flex;gap:10px;margin-top:18px}
-.sheet-btns button{flex:1;padding:13px;border-radius:12px;font-size:16px;font-weight:600;border:none}
+.sheet-btns button{flex:1;padding:15px;border-radius:12px;font-size:18px;font-weight:600;border:none}
 .b-primary{background:var(--green);color:#fff}
 .b-ghost{background:none;border:1px solid var(--line);color:var(--ink)}
 .b-danger-link{background:none;border:none;color:var(--seal);width:100%;margin-top:10px;
-  padding:10px;font-size:14.5px}
+  padding:12px;font-size:16px}
 </style>
 </head>
 <body>
@@ -180,14 +180,10 @@ input,select,textarea{width:100%;padding:11px 12px;font-size:16px;border:1px sol
   <div class="sheet">
     <h3 id="tfTitle">新增房客</h3>
     <label>姓名 / 稱呼</label><input id="tfName" placeholder="例：王先生">
-    <div class="row2">
-      <div><label>房號</label><input id="tfRoom" placeholder="例：3F-A"></div>
-      <div><label>月租金</label><input id="tfRent" type="number" inputmode="numeric" placeholder="例：12000"></div>
-    </div>
-    <div class="row2">
-      <div><label>起租月份</label><input id="tfStart" type="month"></div>
-      <div><label>每月繳費日</label><input id="tfDueDay" type="number" inputmode="numeric" min="1" max="31" placeholder="例：5"></div>
-    </div>
+    <label>房號</label><input id="tfRoom" placeholder="例：3F-A">
+    <label>月租金</label><input id="tfRent" type="number" inputmode="numeric" placeholder="例：12000">
+    <label>起租月份</label><input id="tfStart" type="month">
+    <label>每月繳費日</label><input id="tfDueDay" type="number" inputmode="numeric" min="1" max="31" placeholder="例：5">
     <label>備註（押金、水電約定…）</label><textarea id="tfNote" rows="2"></textarea>
     <div class="sheet-btns">
       <button class="b-ghost" onclick="closeModal('tenantModal')">取消</button>
@@ -201,10 +197,8 @@ input,select,textarea{width:100%;padding:11px 12px;font-size:16px;border:1px sol
 <div class="modal" id="payModal">
   <div class="sheet">
     <h3 id="pfTitle">登記收租</h3>
-    <div class="row2">
-      <div><label>收款日期</label><input id="pfDate" type="date"></div>
-      <div><label>金額</label><input id="pfAmount" type="number" inputmode="numeric"></div>
-    </div>
+    <label>收款日期</label><input id="pfDate" type="date">
+    <label>金額</label><input id="pfAmount" type="number" inputmode="numeric">
     <label>備註（現金 / 轉帳 / 補繳…）</label><input id="pfNote">
     <div class="sheet-btns">
       <button class="b-ghost" onclick="closeModal('payModal')">取消</button>
@@ -282,7 +276,7 @@ function renderYear(){
     for(let m=1;m<=12;m++){
       const y=yr+'-'+String(m).padStart(2,'0');
       const p=payments[t.id+':'+y];
-      if(p) html+='<td><div class="seal seal-sm">收</div><div style="font-size:10px;color:var(--sub)">'+Number(p.amount).toLocaleString()+'</div></td>';
+      if(p) html+='<td><div class="seal seal-sm">收</div><div style="font-size:12px;color:var(--sub)">'+Number(p.amount).toLocaleString()+'</div></td>';
       else if(!activeIn(t,y)) html+='<td><span class="dot">·</span></td>';
       else html+='<td></td>';
     }
