@@ -187,9 +187,9 @@ input,select,textarea{width:100%;padding:13px 14px;font-size:18px;border:1px sol
     <h2>租屋社區選項</h2>
     <div class="set-card" style="padding:13px 16px">
       <div id="regionList"></div>
-      <div class="region-add">
-        <input id="regionInput" placeholder="新增社區名稱">
-        <button onclick="addRegion()">＋</button>
+      <div class="region-add" style="display:flex;gap:8px;margin-top:10px">
+        <input id="regionInput" placeholder="新增社區名稱" style="flex:1;min-width:0;width:auto">
+        <button onclick="addRegion()" style="flex:0 0 48px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:26px;padding:0">＋</button>
       </div>
     </div>
 
